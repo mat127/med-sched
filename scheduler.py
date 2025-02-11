@@ -60,6 +60,19 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self._model.add(min <= sum(shifts_worked))
         self._model.add(max >= sum(shifts_worked))
 
+    def requirement_positive(self, doctor, shift, dates):
+        self._model.add_bool_and(
+            [self._schedule[date, shift, doctor] for date in dates]
+        )
+
+    def requirement_negative(self, doctor, dates):
+        shifts_to_avoid = [
+            self._schedule[(day, shift, doctor)]
+                for day in dates
+                for shift in self._shifts
+        ]
+        self._model.add(sum(shifts_to_avoid) == 0)
+
     def schedule(self):
         self._solver.solve(self._model, self)
 
