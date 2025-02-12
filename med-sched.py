@@ -32,8 +32,39 @@ doctors = [
 scheduler = Scheduler(doctors, days, shifts)
 
 for doctor in doctors:
-    scheduler.shift_count(doctor, 5, 4)
+    scheduler.shift_count(doctor, ["oddělení", "anestezie"], 3, 4)
 
+not_allowed_shifts = {
+    "oddělení": [
+        "Hanzlíková",
+        "Hermannová",
+        "Hindych",
+        "Káňová",
+        "Obšívač",
+        "Prášková",
+        "Smrček",
+        "Tisoň"
+    ],
+    "příslužba": [
+        "Dudková",
+        "Hlista",
+        "Dorovská",
+        "Obšívač",
+        "Smrček",
+        "Hanzlíková"
+    ]
+}
+
+for doctor in not_allowed_shifts["oddělení"]:
+    scheduler.shift_count(doctor, ["oddělení"], 0, 0)
+
+for doctor in doctors:
+    if doctor in not_allowed_shifts["příslužba"]:
+        scheduler.shift_count(doctor, ["příslužba"], 0, 0)
+    else:
+        scheduler.shift_count(doctor, ["příslužba"], 1, 3)
+
+# individual requirements
 scheduler.requirement_positive("Prášková", "anestezie", [date(2025,2,2)])
 scheduler.requirement_positive("Dorovská", "oddělení", [date(2025,2,3)])
 scheduler.requirement_positive("Hudymač", "oddělení", [

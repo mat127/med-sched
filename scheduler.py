@@ -51,10 +51,10 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
                     self._schedule[(d, s, doctor)] for s in self._shifts for d in days
                 )
 
-    def shift_count(self, doctor, max, min=0):
+    def shift_count(self, doctor, shifts, min, max):
         shifts_worked = [
             self._schedule[(day, shift, doctor)]
-                for shift in self._shifts
+                for shift in shifts
                 for day in self._days
         ]
         self._model.add(min <= sum(shifts_worked))
