@@ -4,11 +4,12 @@ from ortools.sat.python import cp_model
 
 class Scheduler(cp_model.CpSolverSolutionCallback):
 
-    def __init__(self, doctors, days, shifts):
+    def __init__(self, doctors, days, shifts, main_shifts):
         cp_model.CpSolverSolutionCallback.__init__(self)
         self._doctors = doctors
         self._days = days
         self._shifts = shifts
+        self._main_shifts = main_shifts
         self._model = cp_model.CpModel()
         self._schedule = self._create_schedule()
         self._solver = Scheduler._create_solver()
@@ -67,10 +68,11 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self._model.add(min <= sum(shifts_worked))
         self._model.add(max >= sum(shifts_worked))
 
-    def requirement_positive(self, doctor, shift, dates):
-        self._model.add_bool_and(
-            [self._schedule[date, shift, doctor] for date in dates]
-        )
+    def requirement_positive(self, doctor, shifts, dates):
+        for date in dates:
+            self._model.add_bool_or(
+                self._schedule[date, shift, doctor] for shift in shifts
+            )
 
     def requirement_negative(self, doctor, dates):
         shifts_to_avoid = [
@@ -90,25 +92,24 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self.print_schedule_stats()
 
     def print_schedule(self):
-        print("date,oddělení,anestezie,příslužba")
+        shift_names = [s.name for s in self._shifts]
+        print(*["date", *shift_names], sep=",")
         for day in self._days:
-            print(f"{day},", end="")
             shift_doctors = [self.get_doctor(day,shift) for shift in self._shifts]
-            print(*shift_doctors, sep=",")
+            print(*[day, *shift_doctors], sep=",")
 
     def print_schedule_stats(self):
-        print("doctor,oddělení,anestezie,příslužba,všední,víkend")
+        shift_names = [s.name for s in self._shifts]
+        print(*["doktor", *shift_names, "všední", "víkend"], sep=",")
         for doctor in self._doctors:
-            print(f"{doctor},", end="")
             shift_counts = [self.get_shift_count(doctor,[shift]) for shift in self._shifts]
-            print(*shift_counts, sep=",", end="")
-            workday_shift_count = self.get_shift_count(doctor, ["oddělení","anestezie"], lambda d: d.weekday() < 5)
-            weekend_shift_count = self.get_shift_count(doctor, ["oddělení","anestezie"], lambda d: d.weekday() >= 5)
-            print(f",{workday_shift_count},{weekend_shift_count}")
+            workday_shift_count = self.get_shift_count(doctor, self._main_shifts, lambda d: d.weekday() < 5)
+            weekend_shift_count = self.get_shift_count(doctor, self._main_shifts, lambda d: d.weekday() >= 5)
+            print(*[doctor, *shift_counts, workday_shift_count, weekend_shift_count], sep=",")
 
     def get_doctor(self, day, shift):
         return next(
-            (doctor for doctor in self._doctors if self.value(self._schedule[(day, shift, doctor)])),
+            (doctor for doctor in self._doctors if self.boolean_value(self._schedule[(day, shift, doctor)])),
             None
         )
 
