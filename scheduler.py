@@ -1,5 +1,8 @@
 import calendar
+import string
 from datetime import date
+from enum import Enum
+
 from ortools.sat.python import cp_model
 
 class Scheduler(cp_model.CpSolverSolutionCallback):
@@ -59,11 +62,11 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
                     self._schedule[(d, s, doctor)] for s in self._shifts for d in days
                 )
 
-    def shift_count(self, doctor, shifts, min, max):
+    def shift_count(self, doctor: string, shifts: list[Enum], min: int, max: int, predicate = lambda d: True):
         shifts_worked = [
             self._schedule[(day, shift, doctor)]
                 for shift in shifts
-                for day in self._days
+                for day in self._days if predicate(day)
         ]
         self._model.add(min <= sum(shifts_worked))
         self._model.add(max >= sum(shifts_worked))

@@ -43,9 +43,11 @@ scheduler.no_shifts([Shifts.PRISLUZBA], lambda d: d.weekday() >= 5)
 # days off between shifts (including the shift day)
 scheduler.one_shift_per_doctor_in_period(3)
 
-# how many non-PRISLUZBA shifts per doctor
 for doctor in doctors:
+    # how many non-PRISLUZBA shifts per doctor
     scheduler.shift_count(doctor, Shifts.PRISLUZBA.others(), 3, 4)
+    # how many non-PRISLUZBA shifts per doctor during weekend
+    scheduler.shift_count(doctor, Shifts.PRISLUZBA.others(), 0, 1, lambda d: d.weekday() >= 5)
 
 not_allowed_shifts = {
     Shifts.ODDELENI: [
