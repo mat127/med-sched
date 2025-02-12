@@ -90,16 +90,21 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self.print_schedule_stats()
 
     def print_schedule(self):
+        print("date,oddělení,anestezie,příslužba")
         for day in self._days:
             print(f"{day},", end="")
             shift_doctors = [self.get_doctor(day,shift) for shift in self._shifts]
             print(*shift_doctors, sep=",")
 
     def print_schedule_stats(self):
+        print("doctor,oddělení,anestezie,příslužba,všední,víkend")
         for doctor in self._doctors:
             print(f"{doctor},", end="")
-            shift_counts = [self.get_shift_count(doctor,shift) for shift in self._shifts]
-            print(*shift_counts, sep=",")
+            shift_counts = [self.get_shift_count(doctor,[shift]) for shift in self._shifts]
+            print(*shift_counts, sep=",", end="")
+            workday_shift_count = self.get_shift_count(doctor, ["oddělení","anestezie"], lambda d: d.weekday() < 5)
+            weekend_shift_count = self.get_shift_count(doctor, ["oddělení","anestezie"], lambda d: d.weekday() >= 5)
+            print(f",{workday_shift_count},{weekend_shift_count}")
 
     def get_doctor(self, day, shift):
         return next(
@@ -107,8 +112,12 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
             None
         )
 
-    def get_shift_count(self, doctor, shift):
-        return sum(self.value(self._schedule[day, shift, doctor]) for day in self._days)
+    def get_shift_count(self, doctor, shifts, day_predicate = lambda d: True):
+        return sum(
+            self.value(self._schedule[day, shift, doctor])
+               for shift in shifts
+               for day in filter(day_predicate, self._days)
+        )
 
     def print_statistics(self):
         print("\nStatistics")
