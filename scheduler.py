@@ -11,8 +11,6 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self._shifts = shifts
         self._model = cp_model.CpModel()
         self._schedule = self._create_schedule()
-        self.one_doctor_per_shift()
-        self.one_shift_per_doctor_in_period(3)
         self._solver = Scheduler._create_solver()
 
     # Creates shift variables.
@@ -37,10 +35,19 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         return [date(year, month, day) for day in range(1, days_in_month + 1)]
 
     # Each shift is assigned to exactly one doctor in the schedule period.
-    def one_doctor_per_shift(self):
-        for day in self._days:
-            for shift in self._shifts:
+    def one_doctor_per_shift(self, shifts, date_predicate = lambda d: True):
+        for day in filter(date_predicate, self._days):
+            for shift in shifts:
                 self._model.add_exactly_one(self._schedule[(day, shift, doctor)] for doctor in self._doctors)
+
+    def no_shifts(self, shifts, date_predicate):
+        shifts_to_avoid = [
+            self._schedule[(day, shift, doctor)]
+            for day in filter(date_predicate, self._days)
+            for shift in shifts
+            for doctor in self._doctors
+        ]
+        self._model.add(sum(shifts_to_avoid) == 0)
 
     # Each doctor works at most one shift per day.
     def one_shift_per_doctor_in_period(self, num_days=2):

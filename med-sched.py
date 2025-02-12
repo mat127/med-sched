@@ -30,6 +30,11 @@ doctors = [
 ]
 
 scheduler = Scheduler(doctors, days, shifts)
+scheduler.one_doctor_per_shift(["oddělení","anestezie"])
+scheduler.one_doctor_per_shift(["příslužba"], lambda d: d.weekday() < 5)
+scheduler.no_shifts(["příslužba"], lambda d: d.weekday() >= 5)
+
+scheduler.one_shift_per_doctor_in_period(3)
 
 for doctor in doctors:
     scheduler.shift_count(doctor, ["oddělení", "anestezie"], 3, 4)
