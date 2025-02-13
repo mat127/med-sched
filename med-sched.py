@@ -1,4 +1,3 @@
-from datetime import date
 from enum import Enum
 
 from scheduler import Scheduler
@@ -83,90 +82,28 @@ for doctor in Doctor:
         scheduler.shift_count(doctor, [Shift.PRISLUZBA], 1, 2)
 
 # individual requirements
-scheduler.requirement_positive(Doctor.PRASKOVA, Shift.main(), [
-    date(2025,2,2)
-])
-scheduler.requirement_positive(Doctor.DOROVSKA, Shift.main(), [
-    date(2025,2,3)
-])
-scheduler.requirement_positive(Doctor.HUDYMAC, Shift.main(), [
-    date(2025,2,4),
-    date(2025,2,18),
-    date(2025,2,22),
-    date(2025,2,25)
-])
-scheduler.requirement_positive(Doctor.HINDYCH, Shift.main(), [
-    date(2025,2,8),
-    date(2025,2,20)
-])
-scheduler.requirement_positive(Doctor.OBSIVAC, Shift.main(), [
-    date(2025,2,9),
-    date(2025,2,17)
-])
+scheduler.requirement_positive(Doctor.PRASKOVA, Shift.main(), [2])
+scheduler.requirement_positive(Doctor.DOROVSKA, Shift.main(), [3])
+scheduler.requirement_positive(Doctor.HUDYMAC, Shift.main(), [4,18,22,25])
+scheduler.requirement_positive(Doctor.HINDYCH, Shift.main(), [8,20])
+scheduler.requirement_positive(Doctor.OBSIVAC, Shift.main(), [9,17])
 
-scheduler.requirement_negative(Doctor.JEZOVA, [
-    date(2025,2,1),
-    date(2025,2,2),
-    date(2025,2,5),
-    date(2025,2,7),
-    date(2025,2,9),
-    date(2025,2,10),
-    date(2025,2,28),
-])
-scheduler.requirement_negative(Doctor.HANZLIKOVA, [
-    date(2025,2,1),
-    date(2025,2,2),
-    date(2025,2,5),
-    date(2025,2,10),
-    date(2025,2,15),
-])
-scheduler.requirement_negative(Doctor.HERMANNOVA, [
-    date(2025,2,1),
-    date(2025,2,2),
-    date(2025,2,14),
-    date(2025,2,15),
-    date(2025,2,16),
-    date(2025,2,17),
-])
-scheduler.requirement_negative(Doctor.HUDYMAC, [
-    date(2025,2,d) for d in [1,2,6,7,8,9,10,11,12,13,14,15,16,20,21]
-])
-scheduler.requirement_negative(Doctor.HLISTA, [
-    date(2025,2,d) for d in [1,2,3,4,5,6,7,8,10,11,14,15,16,17,18,19,20,25,26,27,28]
-])
-scheduler.requirement_negative(Doctor.SMRCEK, [
-    date(2025,2,d) for d in [3,5,6,10,13,14,15,16,17,19,20,24,27,28]
-])
-scheduler.requirement_negative(Doctor.DUDKOVA, [
-    date(2025,2,d) for d in [3,4,7,8,9,10,11,12,14,15,17,18,24,25,28]
-])
-scheduler.requirement_negative(Doctor.DOROVSKA, [
-    date(2025,2,d) for d in [5,6,7,8,9,10,11,12,13,20,27]
-])
-scheduler.requirement_negative(Doctor.FOLDYNOVA, [
-    date(2025,2,d) for d in [8,11,12,21,27]
-])
-scheduler.requirement_negative(Doctor.MATOUSKOVA, [
-    date(2025,2,d) for d in [8,9]
-])
-scheduler.requirement_negative(Doctor.HINDYCH, [
-    date(2025,2,d) for d in [6,9,10,13,14,15,16]
-])
-scheduler.requirement_negative(Doctor.PRASKOVA, [
-    date(2025,2,d) for d in [4,11,14,15,16,18,21,22,23,25]
-])
-scheduler.requirement_negative(Doctor.HANZLIKOVA, [
-    date(2025,2,d) for d in [1,2,5,10,15]
-])
-scheduler.requirement_negative(Doctor.PAVLIK, [
-    date(2025,2,d) for d in [12,21]
-])
-scheduler.requirement_negative(Doctor.MATULOVA, [
-    date(2025,2,d) for d in [17,18,19,20,21]
-])
-scheduler.requirement_negative(Doctor.OBSIVAC, [
-    date(2025,2,d) for d in [21,22,23,24,25,26,27,28]
-])
+scheduler.requirement_negative(Doctor.JEZOVA, [1,2,5,7,9,10,28])
+scheduler.requirement_negative(Doctor.HANZLIKOVA, [1,2,5,10,15])
+scheduler.requirement_negative(Doctor.HERMANNOVA, [1,2,14,15,16,17])
+scheduler.requirement_negative(Doctor.HUDYMAC, [1,2,6,7,8,9,10,11,12,13,14,15,16,20,21])
+scheduler.requirement_negative(Doctor.HLISTA, [1,2,3,4,5,6,7,8,10,11,14,15,16,17,18,19,20,25,26,27,28])
+scheduler.requirement_negative(Doctor.SMRCEK, [3,5,6,10,13,14,15,16,17,19,20,24,27,28])
+scheduler.requirement_negative(Doctor.DUDKOVA, [3,4,7,8,9,10,11,12,14,15,17,18,24,25,28])
+scheduler.requirement_negative(Doctor.DOROVSKA, [5,6,7,8,9,10,11,12,13,20,27])
+scheduler.requirement_negative(Doctor.FOLDYNOVA, [8,11,12,21,27])
+scheduler.requirement_negative(Doctor.MATOUSKOVA, [8,9])
+scheduler.requirement_negative(Doctor.HINDYCH, [6,9,10,13,14,15,16])
+scheduler.requirement_negative(Doctor.PRASKOVA, [4,11,14,15,16,18,21,22,23,25])
+scheduler.requirement_negative(Doctor.HANZLIKOVA, [1,2,5,10,15])
+scheduler.requirement_negative(Doctor.PAVLIK, [12,21])
+scheduler.requirement_negative(Doctor.MATULOVA, [17,18,19,20,21])
+scheduler.requirement_negative(Doctor.OBSIVAC, [21,22,23,24,25,26,27,28])
 
 scheduler.requirement_negative_weekday(Doctor.MATOUSKOVA, [1,2,3,4])
 

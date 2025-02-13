@@ -38,6 +38,9 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         days_in_month = calendar.monthrange(year, month)[1]
         return [date(year, month, day) for day in range(1, days_in_month + 1)]
 
+    def get_days(self, *day_in_month):
+        return [self._days[i-1] for i in day_in_month]
+
     # Each shift is assigned to exactly one doctor in the schedule period.
     def one_doctor_per_shift(self, shifts, date_predicate = lambda d: True):
         for day in filter(date_predicate, self._days):
@@ -71,16 +74,16 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         self._model.add(min <= sum(shifts_worked))
         self._model.add(max >= sum(shifts_worked))
 
-    def requirement_positive(self, doctor, shifts, dates):
-        for date in dates:
+    def requirement_positive(self, doctor, shifts, days_in_month: list[int]):
+        for date in self.get_days(*days_in_month):
             self._model.add_bool_or(
                 self._schedule[date, shift, doctor] for shift in shifts
             )
 
-    def requirement_negative(self, doctor, dates):
+    def requirement_negative(self, doctor, days_in_month: list[int]):
         shifts_to_avoid = [
             self._schedule[(day, shift, doctor)]
-                for day in dates
+                for day in self.get_days(*days_in_month)
                 for shift in self._shifts
         ]
         self._model.add(sum(shifts_to_avoid) == 0)
