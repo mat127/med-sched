@@ -106,7 +106,7 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         shift_names = self.get_shift_values()
         print(*["date", *shift_names], sep=",")
         for day in self._days:
-            shift_doctors = [self.get_doctor(day,shift) for shift in self._shifts]
+            shift_doctors = [self.get_doctor_name(day,shift) for shift in self._shifts]
             print(*[day, *shift_doctors], sep=",")
 
     def print_schedule_stats(self):
@@ -116,10 +116,14 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
             shift_counts = [self.get_shift_count(doctor,[shift]) for shift in self._shifts]
             workday_shift_count = self.get_shift_count(doctor, self._main_shifts, lambda d: d.weekday() < 5)
             weekend_shift_count = self.get_shift_count(doctor, self._main_shifts, lambda d: d.weekday() >= 5)
-            print(*[doctor, *shift_counts, workday_shift_count, weekend_shift_count], sep=",")
+            print(*[doctor.value, *shift_counts, workday_shift_count, weekend_shift_count], sep=",")
 
     def get_shift_values(self):
         return [s.value for s in self._shifts]
+
+    def get_doctor_name(self, day, shift):
+        doctor = self.get_doctor(day, shift)
+        return doctor.value if doctor is not None else ""
 
     def get_doctor(self, day, shift):
         return next(
