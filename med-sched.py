@@ -165,5 +165,7 @@ scheduler.requirement_negative("Obšívač", [
     date(2025,2,d) for d in [21,22,23,24,25,26,27,28]
 ])
 
+scheduler.requirement_negative_weekday("Matoušková", [1,2,3,4])
+
 scheduler.schedule()
 scheduler.print_statistics()

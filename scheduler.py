@@ -85,6 +85,14 @@ class Scheduler(cp_model.CpSolverSolutionCallback):
         ]
         self._model.add(sum(shifts_to_avoid) == 0)
 
+    def requirement_negative_weekday(self, doctor, weekdays):
+        shifts_to_avoid = [
+            self._schedule[(day, shift, doctor)]
+            for day in self._days if day.weekday() in weekdays
+            for shift in self._shifts
+        ]
+        self._model.add(sum(shifts_to_avoid) == 0)
+
     def schedule(self):
         self._solver.solve(self._model, self)
 
