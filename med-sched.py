@@ -5,13 +5,17 @@ from scheduler import Scheduler
 
 days = Scheduler.generate_days(2025, 2)
 
-class Shifts(Enum):
+class Shift(Enum):
     ODDELENI  = "oddělení"
     ANESTEZIE = "anestezie"
     PRISLUZBA = "příslužba"
 
     def others(self):
-        return list(filter(lambda s: not s == self, Shifts))
+        return list(filter(lambda s: not s == self, Shift))
+
+    @staticmethod
+    def main():
+        return Shift.PRISLUZBA.others()
 
 class Doctor(Enum):
     DOROVSKA = "Dorovská"
@@ -32,24 +36,24 @@ class Doctor(Enum):
     SMRCEK = "Smrček"
     TISON = "Tisoň"
 
-scheduler = Scheduler(Doctor, days, Shifts, Shifts.PRISLUZBA.others())
-scheduler.one_doctor_per_shift(Shifts.PRISLUZBA.others())
+scheduler = Scheduler(Doctor, days, Shift, Shift.main())
+scheduler.one_doctor_per_shift(Shift.main())
 
 # PRISLUZBA only on workdays
-scheduler.one_doctor_per_shift([Shifts.PRISLUZBA], lambda d: d.weekday() < 5)
-scheduler.no_shifts([Shifts.PRISLUZBA], lambda d: d.weekday() >= 5)
+scheduler.one_doctor_per_shift([Shift.PRISLUZBA], lambda d: d.weekday() < 5)
+scheduler.no_shifts([Shift.PRISLUZBA], lambda d: d.weekday() >= 5)
 
 # days off between shifts (including the shift day)
 scheduler.one_shift_per_doctor_in_period(3)
 
 for doctor in Doctor:
-    # how many non-PRISLUZBA shifts per doctor
-    scheduler.shift_count(doctor, Shifts.PRISLUZBA.others(), 3, 4)
-    # how many non-PRISLUZBA shifts per doctor during weekend
-    scheduler.shift_count(doctor, Shifts.PRISLUZBA.others(), 0, 1, lambda d: d.weekday() >= 5)
+    # how many main shifts per doctor
+    scheduler.shift_count(doctor, Shift.main(), 3, 4)
+    # how many main shifts per doctor during weekend
+    scheduler.shift_count(doctor, Shift.main(), 0, 1, lambda d: d.weekday() >= 5)
 
 not_allowed_shifts = {
-    Shifts.ODDELENI: [
+    Shift.ODDELENI: [
         Doctor.HANZLIKOVA,
         Doctor.HERMANNOVA,
         Doctor.HINDYCH,
@@ -59,7 +63,7 @@ not_allowed_shifts = {
         Doctor.SMRCEK,
         Doctor.TISON
     ],
-    Shifts.PRISLUZBA: [
+    Shift.PRISLUZBA: [
         Doctor.DUDKOVA,
         Doctor.HLISTA,
         Doctor.DOROVSKA,
@@ -69,33 +73,33 @@ not_allowed_shifts = {
     ]
 }
 
-for doctor in not_allowed_shifts[Shifts.ODDELENI]:
-    scheduler.shift_count(doctor, [Shifts.ODDELENI], 0, 0)
+for doctor in not_allowed_shifts[Shift.ODDELENI]:
+    scheduler.shift_count(doctor, [Shift.ODDELENI], 0, 0)
 
 for doctor in Doctor:
-    if doctor in not_allowed_shifts[Shifts.PRISLUZBA]:
-        scheduler.shift_count(doctor, [Shifts.PRISLUZBA], 0, 0)
+    if doctor in not_allowed_shifts[Shift.PRISLUZBA]:
+        scheduler.shift_count(doctor, [Shift.PRISLUZBA], 0, 0)
     else:
-        scheduler.shift_count(doctor, [Shifts.PRISLUZBA], 1, 2)
+        scheduler.shift_count(doctor, [Shift.PRISLUZBA], 1, 2)
 
 # individual requirements
-scheduler.requirement_positive(Doctor.PRASKOVA, Shifts.PRISLUZBA.others(), [
+scheduler.requirement_positive(Doctor.PRASKOVA, Shift.main(), [
     date(2025,2,2)
 ])
-scheduler.requirement_positive(Doctor.DOROVSKA, Shifts.PRISLUZBA.others(), [
+scheduler.requirement_positive(Doctor.DOROVSKA, Shift.main(), [
     date(2025,2,3)
 ])
-scheduler.requirement_positive(Doctor.HUDYMAC, Shifts.PRISLUZBA.others(), [
+scheduler.requirement_positive(Doctor.HUDYMAC, Shift.main(), [
     date(2025,2,4),
     date(2025,2,18),
     date(2025,2,22),
     date(2025,2,25)
 ])
-scheduler.requirement_positive(Doctor.HINDYCH, Shifts.PRISLUZBA.others(), [
+scheduler.requirement_positive(Doctor.HINDYCH, Shift.main(), [
     date(2025,2,8),
     date(2025,2,20)
 ])
-scheduler.requirement_positive(Doctor.OBSIVAC, Shifts.PRISLUZBA.others(), [
+scheduler.requirement_positive(Doctor.OBSIVAC, Shift.main(), [
     date(2025,2,9),
     date(2025,2,17)
 ])
